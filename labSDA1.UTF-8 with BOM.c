@@ -1,9 +1,8 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <locale.h>
 #include <windows.h>
-
-#define SIZE 3
 
 struct BankAccount {
     int accountNumber;
@@ -12,174 +11,145 @@ struct BankAccount {
     char accountType[20];
 };
 
-void inputAccounts(struct BankAccount accounts[], int size);
-void printAccounts(struct BankAccount accounts[], int size);
-void editAccount(struct BankAccount accounts[], int size);
-void searchAccount(struct BankAccount accounts[], int size);
-void depositMoney(struct BankAccount accounts[], int size);
-void withdrawMoney(struct BankAccount accounts[], int size);
+void addAccount(struct BankAccount **accounts, int *size, int *capacity);
+void printAccounts(struct BankAccount *accounts, int size);
+void removeLastAccount(struct BankAccount **accounts, int *size);
+void expandArray(struct BankAccount **accounts, int *capacity, int size, int extra);
+void clearAll(struct BankAccount **accounts, int *size, int *capacity);
+
+void addAccount(struct BankAccount **accounts, int *size, int *capacity) {
+
+    if (*size >= *capacity) {
+        expandArray(accounts, capacity, *size, 2);
+    }
+
+    struct BankAccount *acc = &((*accounts)[*size]);
+
+    printf("Номер счета: ");
+    scanf("%d", &acc->accountNumber);
+
+    printf("Баланс: ");
+    scanf("%f", &acc->balance);
+
+    printf("Имя владельца: ");
+    scanf("%s", acc->ownerName);
+
+    printf("Тип счета: ");
+    scanf("%s", acc->accountType);
+
+    (*size)++;
+}
+
+void expandArray(struct BankAccount **accounts, int *capacity, int size, int extra) {
+
+    int newCapacity = *capacity + extra;
+
+    struct BankAccount *newArray =
+        (struct BankAccount*)malloc(newCapacity * sizeof(struct BankAccount));
+
+    if (newArray == NULL) {
+        printf("Ошибка расширения памяти!\n");
+        return;
+    }
+
+    for (int i = 0; i < size; i++) {
+        newArray[i] = (*accounts)[i];
+    }
+
+    free(*accounts);
+
+    *accounts = newArray;
+    *capacity = newCapacity;
+
+    printf("Массив расширен до %d элементов\n", *capacity);
+}
+
+void removeLastAccount(struct BankAccount **accounts, int *size) {
+
+    if (*size > 0) {
+        (*size)--;
+        printf("Последний элемент удален\n");
+    } else {
+        printf("Список пуст\n");
+    }
+}
+
+void printAccounts(struct BankAccount *accounts, int size) {
+
+    if (size == 0) {
+        printf("Список пуст\n");
+        return;
+    }
+
+    for (int i = 0; i < size; i++) {
+        printf("\n[%d]\n", i);
+        printf("Номер: %d\n", accounts[i].accountNumber);
+        printf("Баланс: %.2f\n", accounts[i].balance);
+        printf("Владелец: %s\n", accounts[i].ownerName);
+        printf("Тип: %s\n", accounts[i].accountType);
+    }
+}
+
+void clearAll(struct BankAccount **accounts, int *size, int *capacity) {
+
+    if (*accounts != NULL) {
+        free(*accounts);
+        *accounts = NULL;
+    }
+
+    *size = 0;
+    *capacity = 0;
+
+    printf("Память освобождена\n");
+}
 
 int main() {
+
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
     setlocale(LC_ALL, ".UTF-8");
 
-    struct BankAccount accounts[SIZE];
+    int size = 0;
+    int capacity = 2;
+
+    struct BankAccount *accounts =
+        (struct BankAccount*)malloc(capacity * sizeof(struct BankAccount));
+
+    if (accounts == NULL) {
+        printf("Ошибка выделения памяти!\n");
+        return 1;
+    }
+
     int choice;
 
     do {
         printf("\n===== МЕНЮ =====\n");
-        printf("1. Ввод данных\n");
-        printf("2. Вывод всех счетов\n");
-        printf("3. Редактирование счета\n");
-        printf("4. Поиск счета по номеру\n");
-        printf("5. Пополнение счета\n");
-        printf("6. Снятие денег\n");
+        printf("1. Добавить счет\n");
+        printf("2. Вывести счета\n");
+        printf("3. Удалить последний счет\n");
+        printf("4. Очистить список\n");
         printf("0. Выход\n");
-        printf("Выберите действие: ");
+        printf("Выбор: ");
         scanf("%d", &choice);
 
         switch(choice) {
-            case 1: inputAccounts(accounts, SIZE); break;
-            case 2: printAccounts(accounts, SIZE); break;
-            case 3: editAccount(accounts, SIZE); break;
-            case 4: searchAccount(accounts, SIZE); break;
-            case 5: depositMoney(accounts, SIZE); break;
-            case 6: withdrawMoney(accounts, SIZE); break;
-            case 0: printf("Выход...\n"); break;
-            default: printf("Неверный выбор!\n");
+            case 1:
+                addAccount(&accounts, &size, &capacity);
+                break;
+            case 2:
+                printAccounts(accounts, size);
+                break;
+            case 3:
+                removeLastAccount(&accounts, &size);
+                break;
+            case 4:
+                clearAll(&accounts, &size, &capacity);
+                break;
         }
 
     } while(choice != 0);
 
+    clearAll(&accounts, &size, &capacity);
+
     return 0;
-}
-
-// Ввод данных
-void inputAccounts(struct BankAccount accounts[], int size) {
-    for(int i = 0; i < size; i++) {
-        printf("\nСчет %d\n", i);
-        printf("Номер счета: ");
-        scanf("%d", &accounts[i].accountNumber);
-        printf("Баланс: ");
-        scanf("%f", &accounts[i].balance);
-        printf("Имя владельца: ");
-        scanf("%s", accounts[i].ownerName);
-        printf("Тип счета: ");
-        scanf("%s", accounts[i].accountType);
-    }
-}
-
-// Вывод данных
-void printAccounts(struct BankAccount accounts[], int size) {
-    for(int i = 0; i < size; i++) {
-        printf("\nИндекс: %d\n", i);
-        printf("Номер счета: %d\n", accounts[i].accountNumber);
-        printf("Баланс: %.2f\n", accounts[i].balance);
-        printf("Владелец: %s\n", accounts[i].ownerName);
-        printf("Тип счета: %s\n", accounts[i].accountType);
-    }
-}
-
-// Редактирование
-void editAccount(struct BankAccount accounts[], int size) {
-    int index;
-    printf("Введите индекс счета для редактирования: ");
-    scanf("%d", &index);
-
-    if(index >= 0 && index < size) {
-        int field;
-        printf("Что изменить?\n");
-        printf("1. Номер счета\n");
-        printf("2. Баланс\n");
-        printf("3. Имя владельца\n");
-        printf("4. Тип счета\n");
-        scanf("%d", &field);
-
-        switch(field) {
-            case 1:
-                printf("Новый номер: ");
-                scanf("%d", &accounts[index].accountNumber);
-                break;
-            case 2:
-                printf("Новый баланс: ");
-                scanf("%f", &accounts[index].balance);
-                break;
-            case 3:
-                printf("Новое имя: ");
-                scanf("%s", accounts[index].ownerName);
-                break;
-            case 4:
-                printf("Новый тип: ");
-                scanf("%s", accounts[index].accountType);
-                break;
-            default:
-                printf("Неверный выбор!\n");
-        }
-    } else {
-        printf("Неверный индекс!\n");
-    }
-}
-
-// Поиск по номеру счета
-void searchAccount(struct BankAccount accounts[], int size) {
-    int number;
-    printf("Введите номер счета для поиска: ");
-    scanf("%d", &number);
-
-    for(int i = 0; i < size; i++) {
-        if(accounts[i].accountNumber == number) {
-            printf("\nСчет найден!\n");
-            printf("Владелец: %s\n", accounts[i].ownerName);
-            printf("Баланс: %.2f\n", accounts[i].balance);
-            printf("Тип счета: %s\n", accounts[i].accountType);
-            return;
-        }
-    }
-    printf("Счет не найден!\n");
-}
-
-// Пополнение счета
-void depositMoney(struct BankAccount accounts[], int size) {
-    int number;
-    float amount;
-
-    printf("Введите номер счета: ");
-    scanf("%d", &number);
-
-    for(int i = 0; i < size; i++) {
-        if(accounts[i].accountNumber == number) {
-            printf("Введите сумму пополнения: ");
-            scanf("%f", &amount);
-            accounts[i].balance += amount;
-            printf("Баланс обновлен. Новый баланс: %.2f\n", accounts[i].balance);
-            return;
-        }
-    }
-    printf("Счет не найден!\n");
-}
-
-// Снятие денег
-void withdrawMoney(struct BankAccount accounts[], int size) {
-    int number;
-    float amount;
-
-    printf("Введите номер счета: ");
-    scanf("%d", &number);
-
-    for(int i = 0; i < size; i++) {
-        if(accounts[i].accountNumber == number) {
-            printf("Введите сумму снятия: ");
-            scanf("%f", &amount);
-
-            if(accounts[i].balance >= amount) {
-                accounts[i].balance -= amount;
-                printf("Операция выполнена. Новый баланс: %.2f\n", accounts[i].balance);
-            } else {
-                printf("Недостаточно средств!\n");
-            }
-            return;
-        }
-    }
-    printf("Счет не найден!\n");
 }
