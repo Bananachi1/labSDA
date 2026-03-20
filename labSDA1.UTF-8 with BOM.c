@@ -16,7 +16,7 @@ void printAccounts(struct BankAccount *accounts, int size);
 void removeLastAccount(struct BankAccount **accounts, int *size);
 void expandArray(struct BankAccount **accounts, int *capacity, int size, int extra);
 void clearAll(struct BankAccount **accounts, int *size, int *capacity);
-void searchAccounts(struct BankAccount *accounts, int size);  // НОВОЕ
+void searchAccounts(struct BankAccount *accounts, int size);  
 
 void addAccount(struct BankAccount **accounts, int *size, int *capacity) {
 
@@ -104,7 +104,6 @@ void clearAll(struct BankAccount **accounts, int *size, int *capacity) {
     printf("Память освобождена\n");
 }
 
-// ===== НОВАЯ ФУНКЦИЯ ПОИСКА =====
 void searchAccounts(struct BankAccount *accounts, int size) {
 
     if (size == 0) {
@@ -121,7 +120,7 @@ void searchAccounts(struct BankAccount *accounts, int size) {
     int searchChoice;
     scanf("%d", &searchChoice);
 
-    int found = 0;  // счётчик найденных совпадений
+    int found = 0; 
 
     if (searchChoice == 1) {
 
@@ -185,7 +184,6 @@ void searchAccounts(struct BankAccount *accounts, int size) {
         printf("\nНайдено: %d\n", found);
     }
 }
-// ===== КОНЕЦ НОВОЙ ФУНКЦИИ =====
 
 int main() {
 
@@ -212,7 +210,7 @@ int main() {
         printf("2. Вывести счета\n");
         printf("3. Удалить последний счет\n");
         printf("4. Очистить список\n");
-        printf("5. Поиск\n");   // НОВОЕ
+        printf("5. Поиск\n");   
         printf("0. Выход\n");
         printf("Выбор: ");
         scanf("%d", &choice);
@@ -230,9 +228,9 @@ int main() {
             case 4:
                 clearAll(&accounts, &size, &capacity);
                 break;
-            case 5:                                       // НОВОЕ
-                searchAccounts(accounts, size);           // НОВОЕ
-                break;                                    // НОВОЕ
+            case 5:                                       
+                searchAccounts(accounts, size);           
+                break;                                    
         }
 
     } while(choice != 0);
